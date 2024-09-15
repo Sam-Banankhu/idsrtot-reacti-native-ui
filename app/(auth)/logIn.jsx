@@ -4,6 +4,7 @@ import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StatusBar } from "expo-status-bar";
 
 import Header from "../../components/header";
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
@@ -33,19 +34,19 @@ const LogIn = () => {
       if (suffientInfo) {
         await axios
           .post(`${baseUrl}/auth/login/`, formValues)
-          .then((res) => {
+          .then(async(res) => {
             if (res.status === 200) {
               const { access_token, role } = res.data; // Expecting role and token from backend
 
               // Save the token in local storage
-              AsyncStorage.setItem("idsrtoken", access_token);
+             await AsyncStorage.setItem("idsrtoken", access_token);
 
               // Set success message
               setSuccessMessage("Login successful! Redirecting...");
 
               // Redirect based on user role
               setTimeout(() => {
-                  router.replace("/chat"); // Customize your HSA dashboard route
+                router.replace("/chat"); // Customize your HSA dashboard route
               }, 2000); // Redirect after 2 seconds
             }
           })
@@ -72,7 +73,7 @@ const LogIn = () => {
           });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       Alert.alert("Something went wrong", "please try again");
     }
   };
@@ -111,6 +112,7 @@ const LogIn = () => {
               <FormField
                 title="E-mail"
                 placeholder="enter email.."
+                editable={true}
                 handleOnChangeText={(text) =>
                   setFormValues({ ...formValues, email: text })
                 }
@@ -119,6 +121,7 @@ const LogIn = () => {
               <FormField
                 title="Password"
                 placeholder="password"
+                editable={true}
                 hidePassword={hidePassword}
                 HandleHidePassword={() => setHidePassword(!hidePassword)}
                 handleOnChangeText={(text) =>
@@ -142,6 +145,7 @@ const LogIn = () => {
           </View>
         </ScrollView>
       </MaxWidthWrapper>
+      <StatusBar backgroundColor="white" style="dark" />
     </SafeAreaView>
   );
 };
