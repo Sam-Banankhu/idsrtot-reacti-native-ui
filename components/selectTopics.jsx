@@ -50,7 +50,7 @@ const SelectTopics = ({
                   key={index.toString()}
                   className="px-2 py-4 w-full mt-2 border-l-2 border-l-blue-600 flex-row items-center justify-around"
                   onPress={() => {
-                    handleSelectTopic(item);
+                    handleSelectTopic(item);   
                     handleClose();
                   }}
                   style={{ elevation: 2 }}
