@@ -92,9 +92,9 @@ const LogIn = () => {
           showsVerticalScrollIndicator={false}
         >
           <View className="w-full items-center justify-center mt-[50%]">
-            <View className="w-full p-4 rounded-xl" style={{ elevation: 2 }}>
+            <View className="w-full p-4 rounded-xl border-4 border-gray-200">
               <Text
-                className="text-xl font-psemibold text-center mb-4"
+                className="text-xl font-psemibold text-center mb-4 text-blue-600"
                 numberOfLines={1}
               >
                 Log In

@@ -60,7 +60,7 @@ const SelectTopics = ({
                   </Text>
                   {currentTopic?.name === item?.name && (
                     <View className="w-[10%]">
-                      <AntDesign name="checkcircle" size={32} color="#3B82F6" />
+                      <AntDesign name="checkcircle" size={25} color="#3B82F6" />
                     </View>
                   )}
                 </TouchableOpacity>

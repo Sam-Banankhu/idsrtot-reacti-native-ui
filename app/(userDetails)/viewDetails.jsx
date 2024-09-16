@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import images from "../../constants/images";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import FormField from "../../components/formField";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
@@ -31,7 +31,6 @@ const ViewDetails = () => {
     const fectUserData = async () => {
       setIsLoading(true);
       const token = await AsyncStorage.getItem("idsrtoken");
-      console.log(token);
       await axios
         .get(`${baseUrl}/user/me`, {
           headers: {
@@ -52,18 +51,15 @@ const ViewDetails = () => {
 
   return (
     <SafeAreaView className="h-full bg-white relative">
-      <View
-        className="relative items-center justify-center"
-        style={{ height: height / 3.5 }}
-      >
-        <Image
-          source={images.profile}
-          resizeMode="cover"
-          className="w-36 h-36 rounded-full"
-        />
+      <View className="w-full h-10 flex-row justify-between items-center px-2 mt-2">
         <TouchableOpacity
-          className="bg-black rounded-lg px-2 py-1 absolute right-4 top-4 flex-row gap-1 items-center"
-          style={{ elevation: 10 }}
+          className="flex-row gap-2 items-center"
+          onPress={() => router.push("/chat")}
+        >
+          <Ionicons name="chevron-back-circle" size={40} color="#3B82F6" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          className="bg-black rounded-lg px-2 py-1 flex-row gap-1 items-center"
           onPress={() =>
             router.push({
               pathname: "/editDetails",
@@ -79,16 +75,20 @@ const ViewDetails = () => {
           <Text className="text-gray-300 font-pregular">Edit Details</Text>
         </TouchableOpacity>
       </View>
-      <View
-        className="bottom-0 w-full rounded-t-3xl bg-white"
-        style={{ height: height / 1.45, elevation: 2 }}
-      >
+      <View className="w-full rounded-t-3xl bg-white">
         <MaxWidthWrapper>
           <ScrollView
             contentContainerStyle={{ paddingBottom: 120 }}
             showsVerticalScrollIndicator={false}
             className="w-full p-2"
           >
+            <View className="relative items-center justify-center mt-10">
+              <Image
+                source={images.profile}
+                resizeMode="cover"
+                className="w-36 h-36 rounded-full"
+              />
+            </View>
             <View className="w-full p-2">
               <FormField
                 title="Full Name"
@@ -162,7 +162,7 @@ const ViewDetails = () => {
             <Text className="text-blue-600 text-lg tex-center font-psemibold">
               Loading...
             </Text>
-            <ActivityIndicator color={"blue"} size="large" />
+            <ActivityIndicator color={"#3B82F6"} size="large" />
           </View>
         </Modal>
       )}
