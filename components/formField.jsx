@@ -16,8 +16,8 @@ export default FormField = ({
         {title || placeholder}
       </Text>
       <View
-        className="w-full h-12 bg-white rounded-xl mt-1 px-4 flex-row"
-        style={{ elevation: 10 }}
+        className="w-full h-12 bg-white rounded-xl mt-1 px-4 flex-row border  border-gray-400"
+        // style={{ elevation: 10 }}
       >
         <TextInput
           className="text-lg h-full w-[85%] text-black"

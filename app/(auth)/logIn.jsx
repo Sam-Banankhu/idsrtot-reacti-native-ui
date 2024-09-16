@@ -135,7 +135,7 @@ const LogIn = () => {
                 value={formValues.password}
               />
               <CustomWideButton
-                title="Sign In"
+                title="Log In"
                 styles="mt-4"
                 handlePress={lognIn}
                 disabled={isLoggingIn}
@@ -157,10 +157,10 @@ const LogIn = () => {
             className="flex-1 items-center justify-center"
             style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
           >
-            <Text className="text-blue-600 text-xl tex-center font-psemibold">
+            <Text className="text-primary text-xl tex-center font-psemibold">
               Logging In...
             </Text>
-            <ActivityIndicator color={"#3B82F6"} size="large" />
+            <ActivityIndicator color={"green"} size="large" />
           </View>
         </Modal>
       )}
