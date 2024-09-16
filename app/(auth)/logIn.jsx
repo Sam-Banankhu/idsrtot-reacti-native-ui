@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Alert } from "react-native";
+import { View, Text, ScrollView, Alert, Modal, ActivityIndicator } from "react-native";
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,8 +19,10 @@ const LogIn = () => {
   const [hidePassword, setHidePassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isLoggingIn, setIsLogging] = useState(false);
 
   const lognIn = async () => {
+    setIsLogging(true);
     try {
       let suffientInfo = true;
       for (const key in formValues) {
@@ -34,13 +36,14 @@ const LogIn = () => {
       if (suffientInfo) {
         await axios
           .post(`${baseUrl}/auth/login/`, formValues)
-          .then(async(res) => {
+          .then(async (res) => {
             if (res.status === 200) {
               const { access_token, role } = res.data; // Expecting role and token from backend
 
               // Save the token in local storage
-             await AsyncStorage.setItem("idsrtoken", access_token);
+              await AsyncStorage.setItem("idsrtoken", access_token);
 
+              setIsLogging(false);
               // Set success message
               setSuccessMessage("Login successful! Redirecting...");
 
@@ -70,11 +73,13 @@ const LogIn = () => {
             } else {
               setErrorMessage("An unexpected error occurred.");
             }
-          });
+          }).finally(() => setIsLogging(false))
       }
     } catch (error) {
       console.log(error);
       Alert.alert("Something went wrong", "please try again");
+    } finally {
+      setIsLogging(false)
     }
   };
 
@@ -130,10 +135,11 @@ const LogIn = () => {
                 value={formValues.password}
               />
               <CustomWideButton
-                title="Sign Up"
+                title="Sign In"
                 styles="mt-4"
                 handlePress={lognIn}
-                disabled={!(formValues.email && formValues.password)}
+                disabled={isLoggingIn}
+                inactive={!(formValues.email && formValues.password)}
               />
               <Text className="text-center text-lg mt-4 mb-4 font-pregular">
                 Don't have an account?{" "}
@@ -145,6 +151,19 @@ const LogIn = () => {
           </View>
         </ScrollView>
       </MaxWidthWrapper>
+      {isLoggingIn && (
+        <Modal animationType="fade" visible={isLoggingIn} transparent>
+          <View
+            className="flex-1 items-center justify-center"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <Text className="text-blue-600 text-xl tex-center font-psemibold">
+              Logging In...
+            </Text>
+            <ActivityIndicator color={"#3B82F6"} size="large" />
+          </View>
+        </Modal>
+      )}
       <StatusBar backgroundColor="white" style="dark" />
     </SafeAreaView>
   );

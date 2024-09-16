@@ -54,7 +54,7 @@ const Chat = () => {
             {selectedTopic?.name || "Select a Topic"}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setViewProfile(true)}>
+        <TouchableOpacity onPress={() =>router.push("/viewDetails")}>
           <MaterialCommunityIcons
             name="account-circle"
             size={30}
@@ -117,7 +117,7 @@ const Chat = () => {
           handleSelectTopic={(item) => setSelectedTopic(item)}
         />
       )}
-      {viewProfile && (
+      {/* {viewProfile && (
         <ProfileComponent
           displayModal={viewProfile}
           formValues={formValues}
@@ -125,7 +125,7 @@ const Chat = () => {
           handleClose={() => setViewProfile(false)}
           handleLogOut={logout}
         />
-      )}
+      )} */}
     </SafeAreaView>
   );
 };
