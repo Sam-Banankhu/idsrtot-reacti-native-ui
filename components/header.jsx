@@ -13,7 +13,7 @@ const Header = ({ showHeader }) => {
             resizeMode="contain"
           />
         </View>
-        <Text className="text-4xl font-psemibold">IDSRTutor</Text>
+        <Text className="text-4xl font-psemibold" numberOfLines={1}>IDSRTutor</Text>
       </View>
       <View className="flex-row h-full w-[45%] items-center justify-end">
         {showHeader && (

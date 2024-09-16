@@ -7,11 +7,15 @@ const PickerComponent = ({
   selectedValue,
   handleSelectValue,
   data,
-  title
+  title,
 }) => {
   return (
     <>
-      <Text className='text-gray-600 text-base font-psemibold mt-4'>{title}</Text>
+      {title && (
+        <Text className="text-gray-600 text-base font-psemibold mt-4">
+          {title}
+        </Text>
+      )}
       <View className="bg-white rounded-2xl" style={{ elevation: 10 }}>
         <Picker
           prompt={prompt}

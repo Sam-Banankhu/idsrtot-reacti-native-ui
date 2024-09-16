@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, Alert } from "react-native";
+import { View, Text, ScrollView, Alert, Modal, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 import FormField from "../../components/formField";
 import Header from "../../components/header";
@@ -10,6 +11,7 @@ import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import PickerComponent from "../../components/pickerComponent";
 import { baseUrl } from "../../constants/baseUrl";
 import CustomWideButton from "../../components/customWideButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CreateAccount = () => {
   const [formValues, setFormValues] = useState({
@@ -31,6 +33,7 @@ const CreateAccount = () => {
   const [facilitiesData, setFacilitiesData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   const fetchDistricts = async () => {
     try {
@@ -73,6 +76,7 @@ const CreateAccount = () => {
   }, [formValues.district]);
 
   const createAccount = async () => {
+    setIsCreatingAccount(true);
     try {
       let suffientInfo = true;
       for (const key in formValues) {
@@ -94,11 +98,12 @@ const CreateAccount = () => {
         };
         await axios
           .post(`${baseUrl}/auth/signup/`, payload)
-          .then((res) => {
+          .then(async (res) => {
             if (res.status === 201) {
+              await AsyncStorage.setItem("idsrtoken", res?.data?.access_token);
               setSuccessMessage("Signup successful! Redirecting to login...");
               setTimeout(() => {
-                router.push("/logIn");
+                router.replace("/chat");
               }, 2000);
             }
           })
@@ -107,9 +112,14 @@ const CreateAccount = () => {
               const errorResponse = error.response?.data;
 
               // Handle error response and display messages
-              if (typeof errorResponse === "object" && ( errorResponse?.detail || errorResponse?.detail[0]?.msg)) {
+              if (
+                typeof errorResponse === "object" &&
+                (errorResponse?.detail || errorResponse?.detail[0]?.msg)
+              ) {
                 setErrorMessage(
-                  errorResponse?.detail && errorResponse?.detail[0]?.msg || errorResponse?.detail || "Signup failed. Please try again."
+                  (errorResponse?.detail && errorResponse?.detail[0]?.msg) ||
+                    errorResponse?.detail ||
+                    "Signup failed. Please try again."
                 );
               } else {
                 setErrorMessage("Signup failed. Please try again.");
@@ -117,10 +127,13 @@ const CreateAccount = () => {
             } else {
               setErrorMessage("An unexpected error occurred.");
             }
-          });
+          })
+          .finally(() => setIsCreatingAccount(false));
       }
     } catch (error) {
       Alert.alert("Something went wrong", "please try again");
+    } finally {
+      setIsCreatingAccount(false);
     }
   };
 
@@ -143,18 +156,23 @@ const CreateAccount = () => {
               </Text>
               {successMessage && (
                 <View className="bg-green-100 text-green-700 p-2 rounded my-2 text-center">
-                  <Text className='text-base font-pregular'>{successMessage}</Text>
+                  <Text className="text-base font-pregular">
+                    {successMessage}
+                  </Text>
                 </View>
               )}
 
               {errorMessage && (
                 <View className="bg-red-100 text-red-700 p-2 rounded my-2 text-center">
-                  <Text className='text-base font-pregular'>{errorMessage}</Text>
+                  <Text className="text-base font-pregular">
+                    {errorMessage}
+                  </Text>
                 </View>
               )}
               <FormField
                 title="Full Name"
                 placeholder="enter full name.."
+                editable={true}
                 handleOnChangeText={(text) =>
                   setFormValues({ ...formValues, fullName: text })
                 }
@@ -163,6 +181,7 @@ const CreateAccount = () => {
               <FormField
                 title="Email"
                 placeholder="enter email..."
+                editable={true}
                 handleOnChangeText={(text) =>
                   setFormValues({ ...formValues, email: text })
                 }
@@ -171,6 +190,7 @@ const CreateAccount = () => {
               <FormField
                 title="Phone"
                 placeholder="enter phone number..."
+                editable={true}
                 handleOnChangeText={(text) =>
                   setFormValues({ ...formValues, phone: text })
                 }
@@ -199,6 +219,7 @@ const CreateAccount = () => {
               <FormField
                 title="Password"
                 placeholder="password"
+                editable={true}
                 hidePassword={hidePassword}
                 HandleHidePassword={() => setHidePassword(!hidePassword)}
                 handleOnChangeText={(text) =>
@@ -210,7 +231,8 @@ const CreateAccount = () => {
                 title="Sign Up"
                 styles="mt-4"
                 handlePress={createAccount}
-                disabled={
+                disabled={isCreatingAccount}
+                inactive={
                   !(
                     formValues.district &&
                     formValues.email &&
@@ -232,6 +254,20 @@ const CreateAccount = () => {
           </View>
         </ScrollView>
       </MaxWidthWrapper>
+      <StatusBar backgroundColor="white" style="dark" />
+      {isCreatingAccount && (
+        <Modal animationType="fade" visible={isCreatingAccount} transparent>
+          <View
+            className="flex-1 items-center justify-center"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <Text className="text-blue-600 text-lg tex-center font-psemibold">
+              Logging In...
+            </Text>
+            <ActivityIndicator color={"blue"} size="large" />
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 };

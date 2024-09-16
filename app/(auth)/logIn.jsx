@@ -1,9 +1,10 @@
-import { View, Text, ScrollView, Alert } from "react-native";
+import { View, Text, ScrollView, Alert, Modal, ActivityIndicator } from "react-native";
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StatusBar } from "expo-status-bar";
 
 import Header from "../../components/header";
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
@@ -18,8 +19,10 @@ const LogIn = () => {
   const [hidePassword, setHidePassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isLoggingIn, setIsLogging] = useState(false);
 
   const lognIn = async () => {
+    setIsLogging(true);
     try {
       let suffientInfo = true;
       for (const key in formValues) {
@@ -33,19 +36,20 @@ const LogIn = () => {
       if (suffientInfo) {
         await axios
           .post(`${baseUrl}/auth/login/`, formValues)
-          .then((res) => {
+          .then(async (res) => {
             if (res.status === 200) {
               const { access_token, role } = res.data; // Expecting role and token from backend
 
               // Save the token in local storage
-              AsyncStorage.setItem("idsrtoken", access_token);
+              await AsyncStorage.setItem("idsrtoken", access_token);
 
+              setIsLogging(false);
               // Set success message
               setSuccessMessage("Login successful! Redirecting...");
 
               // Redirect based on user role
               setTimeout(() => {
-                  router.replace("/chat"); // Customize your HSA dashboard route
+                router.replace("/chat"); // Customize your HSA dashboard route
               }, 2000); // Redirect after 2 seconds
             }
           })
@@ -69,11 +73,13 @@ const LogIn = () => {
             } else {
               setErrorMessage("An unexpected error occurred.");
             }
-          });
+          }).finally(() => setIsLogging(false))
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       Alert.alert("Something went wrong", "please try again");
+    } finally {
+      setIsLogging(false)
     }
   };
 
@@ -111,6 +117,7 @@ const LogIn = () => {
               <FormField
                 title="E-mail"
                 placeholder="enter email.."
+                editable={true}
                 handleOnChangeText={(text) =>
                   setFormValues({ ...formValues, email: text })
                 }
@@ -119,6 +126,7 @@ const LogIn = () => {
               <FormField
                 title="Password"
                 placeholder="password"
+                editable={true}
                 hidePassword={hidePassword}
                 HandleHidePassword={() => setHidePassword(!hidePassword)}
                 handleOnChangeText={(text) =>
@@ -127,10 +135,11 @@ const LogIn = () => {
                 value={formValues.password}
               />
               <CustomWideButton
-                title="Sign Up"
+                title="Sign In"
                 styles="mt-4"
                 handlePress={lognIn}
-                disabled={!(formValues.email && formValues.password)}
+                disabled={isLoggingIn}
+                inactive={!(formValues.email && formValues.password)}
               />
               <Text className="text-center text-lg mt-4 mb-4 font-pregular">
                 Don't have an account?{" "}
@@ -142,6 +151,20 @@ const LogIn = () => {
           </View>
         </ScrollView>
       </MaxWidthWrapper>
+      {isLoggingIn && (
+        <Modal animationType="fade" visible={isLoggingIn} transparent>
+          <View
+            className="flex-1 items-center justify-center"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <Text className="text-blue-600 text-xl tex-center font-psemibold">
+              Logging In...
+            </Text>
+            <ActivityIndicator color={"#3B82F6"} size="large" />
+          </View>
+        </Modal>
+      )}
+      <StatusBar backgroundColor="white" style="dark" />
     </SafeAreaView>
   );
 };

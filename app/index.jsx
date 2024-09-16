@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 import MaxWidthWrapper from "../components/maxWidthWrapper";
 import Header from "../components/header";
@@ -10,7 +11,7 @@ const Index = () => {
   const logos = [images.mohLogo, images.whoLogo, images.ictLogo];
   return (
     <SafeAreaView className="h-full bg-white">
-      <Header showHeader={true}/>
+      <Header showHeader={true} />
       <MaxWidthWrapper>
         <ScrollView
           contentContainerStyle={{ paddingBottom: 120 }}
@@ -22,12 +23,15 @@ const Index = () => {
             </Text>{" "}
             An AI Powered HSA Tutor
           </Text>
-          <Text className="mt-8 text-center text-2xl font-pregular">
+          <Text className="mt-8 text-center text-xl font-pregular">
             IDRStutor helps you improve your field work and knowledge
             acquisation with the help on an AI tutor
           </Text>
           <View className="w-full h-12 mt-8 items-center justify-center">
-            <TouchableOpacity className="h-full w-[40%] bg-blue-600 rounded-lg items-center justify-center" onPress={() => router.push('/logIn')}>
+            <TouchableOpacity
+              className="h-full w-[40%] bg-blue-600 rounded-lg items-center justify-center"
+              onPress={() => router.push("/logIn")}
+            >
               <Text className="text-lg text-white font-psemibold">
                 Get Started
               </Text>
@@ -108,13 +112,16 @@ const Index = () => {
               </View>
             ))}
           </View>
-          <View className='w-full mt-28'>
-            <Text className='text-4xl font-bold'>IDSRTutor</Text>
-            <View className='h-1 w-full border-b mt-2 border-b-gray-300'/>
-            <Text className='text-base text-gray-500 font-pregular mt-2 text-center'>© 2024 IDSRTutor. All rights Reserved.</Text>
+          <View className="w-full mt-28">
+            <Text className="text-4xl font-bold">IDSRTutor</Text>
+            <View className="h-1 w-full border-b mt-2 border-b-gray-300" />
+            <Text className="text-base text-gray-500 font-pregular mt-2 text-center">
+              © 2024 IDSRTutor. All rights Reserved.
+            </Text>
           </View>
         </ScrollView>
       </MaxWidthWrapper>
+      <StatusBar backgroundColor="white" style="dark" />
     </SafeAreaView>
   );
 };

@@ -8,6 +8,7 @@ export default FormField = ({
   HandleHidePassword,
   value,
   handleOnChangeText,
+  editable
 }) => {
   return (
     <View className="mt-4">
@@ -24,6 +25,7 @@ export default FormField = ({
           placeholder={placeholder}
           placeholderTextColor="gray"
           value={value}
+          editable={editable}
           keyboardType={
             placeholder === "enter phone number..."
               ? "phone-pad"
