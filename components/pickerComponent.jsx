@@ -16,7 +16,7 @@ const PickerComponent = ({
           {title}
         </Text>
       )}
-      <View className="bg-white rounded-2xl" style={{ elevation: 10 }}>
+      <View className="bg-white rounded-xl border border-gray-400 h-12">
         <Picker
           prompt={prompt}
           dropdownIconColor={"blue"}

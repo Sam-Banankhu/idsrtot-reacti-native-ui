@@ -63,8 +63,7 @@ const Chat = () => {
           onPress={() => setDisplayModal(true)}
         >
           <View
-            className="bg-black rounded-lg px-2 py-1"
-            style={{ elevation: 10 }}
+            className="bg-gray-500 rounded-lg px-2 py-1"
           >
             <AntDesign name="edit" size={20} color="white" />
           </View>
