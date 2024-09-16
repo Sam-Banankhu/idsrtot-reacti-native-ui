@@ -10,7 +10,7 @@ export default CustomWideButton = ({
   return (
     <TouchableOpacity
       className={` ${
-        inactive ? "bg-gray-500" : "bg-blue-500"
+        inactive ? "bg-blue-300" : "bg-blue-500"
       }  w-full h-10 rounded-xl justify-center items-center ${styles}`}
       onPress={handlePress}
       disabled={disabled}

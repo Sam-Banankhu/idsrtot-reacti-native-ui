@@ -101,8 +101,7 @@ const Index = () => {
             {logos.map((item, index) => (
               <View
                 key={index.toString()}
-                className="h-44 w-[50%] mt-6 rounded-lg items-center justify-center"
-                style={{ elevation: 2 }}
+                className="h-44 w-[50%] mt-6 rounded-lg items-center justify-center border-4 border-gray-200"
               >
                 <Image
                   source={item}

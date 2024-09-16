@@ -147,9 +147,9 @@ const CreateAccount = () => {
           showsVerticalScrollIndicator={false}
         >
           <View className="w-full items-center justify-center mt-20">
-            <View className="w-full p-4 rounded-xl" style={{ elevation: 2 }}>
+            <View className="w-full p-4 rounded-xl border-4 border-gray-200">
               <Text
-                className="text-xl font-psemibold text-center mb-4"
+                className="text-xl font-psemibold text-center mb-4 text-blue-600"
                 numberOfLines={1}
               >
                 Create an Account
@@ -264,7 +264,7 @@ const CreateAccount = () => {
             <Text className="text-blue-600 text-lg tex-center font-psemibold">
               Logging In...
             </Text>
-            <ActivityIndicator color={"blue"} size="large" />
+            <ActivityIndicator color={"#3B82F6"} size="large" />
           </View>
         </Modal>
       )}
