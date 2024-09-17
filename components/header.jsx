@@ -20,13 +20,13 @@ const Header = ({ showHeader }) => {
           <TouchableOpacity
             className="w-[40%] h-[65%] rounded-lg bg-blue-600 items-center justify-center"
             style={{ elevation: 10 }}
-            onPress={() => router.push('/createAccount')}
+            onPress={() => router.push('/logIn')}
           >
             <Text
               className="text-base text-white font-pregular"
               numberOfLines={1}
             >
-              Sign Up
+              Sign In
             </Text>
           </TouchableOpacity>
         )}

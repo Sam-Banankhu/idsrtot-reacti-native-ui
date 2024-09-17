@@ -46,7 +46,7 @@ const ViewDetails = () => {
 
   const logout = async () => {
     await AsyncStorage.removeItem("idsrtoken");
-    router.replace("/logIn");
+    router.replace("/");
   };
 
   return (
