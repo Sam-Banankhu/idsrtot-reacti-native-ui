@@ -16,39 +16,85 @@ import { router } from "expo-router";
 
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import SelectTopics from "../../components/selectTopics";
-import ProfileComponent from "../../components/profileComponent";
 import axios from "axios";
 import { baseUrl } from "../../constants/baseUrl";
 
 const Chat = () => {
   const scrollViewRef = useRef(null);
-
   const [prompt, setPrompt] = useState("");
   const [selectedTopic, setSelectedTopic] = useState({});
   const [displayModal, setDisplayModal] = useState(false);
   const [viewProfile, setViewProfile] = useState(false);
-  const [sections, setSections] = useState(false);
-  const [isLoading, setIsLoading] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
 
-  const [formValues, setFormValues] = useState({
-    fullName: "Moth",
-    phone: "08878778",
-    role: "hsa",
-    district: "Zomba",
-    facility: "Zomba Central Hospital",
-  });
+// Fetch sections on component mount
+useEffect(() => {
+  const fetchSections = async () => {
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("idsrtoken");
+      const response = await axios.get(`${baseUrl}/sections/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSections(response.data);
+    } catch (error) {
+      console.log("Error fetching sections", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  useEffect(() => {
-    const fetchSections = async () => {
-      setIsLoading(true);
-      axios
-        .get(`${baseUrl}/hsa/sections/`)
-        .then((res) => setSections(res.data))
-        .catch((error) => console.log(error))
-        .finally(() => setIsLoading(false));
-    };
-    fetchSections();
-  }, []);
+  fetchSections();
+}, []);
+
+  // Handle sending the query
+  const handleSendQuery = async () => {
+    if (!selectedTopic.id) {
+      alert("Please select a section/topic first");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("idsrtoken");
+      const res = await axios.post(
+        `${baseUrl}/hsa/ask`,
+        {
+          section_id: selectedTopic.id,
+          question: prompt,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setChatHistory([
+        ...chatHistory,
+        { question: prompt, response: res.data.answer, timestamp: new Date() },
+      ]);
+
+      // Set recent chats
+      setChatHistory((prev) => [
+        ...prev,
+        ...res.data.recent_chats.map((chat) => ({
+          question: chat.question,
+          response: chat.response,
+          timestamp: chat.timestamp,
+        })),
+      ]);
+    } catch (error) {
+      console.log(error);
+      alert("Failed to send the query. Please try again.");
+    } finally {
+      setIsLoading(false);
+      setPrompt("");
+    }
+  };
 
   const logout = async () => {
     await AsyncStorage.removeItem("idsrtoken");
@@ -57,28 +103,25 @@ const Chat = () => {
 
   return (
     <SafeAreaView className="h-full bg-white relative">
+      {/* Header */}
       <View className="w-full h-14 border-b border-b-gray-200 bg-transparent flex-row items-center justify-around">
         <TouchableOpacity
           className="flex-row gap-2 items-center w-[65%]"
           onPress={() => setDisplayModal(true)}
         >
-          <View
-            className="bg-gray-500 rounded-lg px-2 py-1"
-          >
+          <View className="bg-gray-500 rounded-lg px-2 py-1">
             <AntDesign name="edit" size={20} color="white" />
           </View>
           <Text className="text-xl font-psemibold" numberOfLines={1}>
             {selectedTopic?.name || "Select a Topic"}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/viewDetails")}>
-          <MaterialCommunityIcons
-            name="account-circle"
-            size={30}
-            color="#3B82F6"
-          />
+        <TouchableOpacity onPress={logout}>
+          <MaterialCommunityIcons name="account-circle" size={30} color="#3B82F6" />
         </TouchableOpacity>
       </View>
+
+      {/* Chat History */}
       <MaxWidthWrapper>
         <ScrollView
           contentContainerStyle={{ paddingBottom: 120 }}
@@ -86,8 +129,17 @@ const Chat = () => {
           onContentSizeChange={() =>
             scrollViewRef?.current?.scrollToEnd({ animated: false })
           }
-        ></ScrollView>
+        >
+          {chatHistory.map((chat, index) => (
+            <View key={index} className="mb-4">
+              <Text className="font-semibold">You: {chat.question}</Text>
+              <Text className="italic">AI: {chat.response}</Text>
+            </View>
+          ))}
+        </ScrollView>
       </MaxWidthWrapper>
+
+      {/* Input Area */}
       <View className="absolute bottom-6 w-full px-2">
         <View className="w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200">
           <TextInput
@@ -101,6 +153,7 @@ const Chat = () => {
           <TouchableOpacity
             className="w-[12%] h-10 bg-blue-500 rounded-lg items-center justify-center"
             style={{ elevation: 2 }}
+            onPress={handleSendQuery}
           >
             <MaterialCommunityIcons name="send" size={30} color="white" />
           </TouchableOpacity>
@@ -109,7 +162,9 @@ const Chat = () => {
           © 2024 IDSRTutor. All Rights Reserved
         </Text>
       </View>
+
       <StatusBar backgroundColor="white" style="dark" />
+
       {displayModal && (
         <SelectTopics
           title="Select Topic"
@@ -119,15 +174,7 @@ const Chat = () => {
           handleSelectTopic={(item) => setSelectedTopic(item)}
         />
       )}
-      {/* {viewProfile && (
-        <ProfileComponent
-          displayModal={viewProfile}
-          formValues={formValues}
-          setFormValues={setFormValues}
-          handleClose={() => setViewProfile(false)}
-          handleLogOut={logout}
-        />
-      )} */}
+
       {isLoading && (
         <Modal animationType="fade" visible={isLoading} transparent>
           <View

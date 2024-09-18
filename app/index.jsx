@@ -30,7 +30,7 @@ const Index = () => {
           <View className="w-full h-12 mt-8 items-center justify-center">
             <TouchableOpacity
               className="h-full w-[40%] bg-blue-600 rounded-lg items-center justify-center"
-              onPress={() => router.push("/logIn")}
+              onPress={() => router.push("/createAccount")}
             >
               <Text className="text-lg text-white font-psemibold">
                 Get Started
