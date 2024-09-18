@@ -1,5 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
-import { Link, router } from "expo-router";
+import { View, Text, ScrollView, TouchableOpacity, Image, BackHandler, Alert } from "react-native";
+import { Link, router, useRouter, useSegments  } from "expo-router";
+import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
@@ -9,6 +10,31 @@ import images from "../constants/images";
 
 const Index = () => {
   const logos = [images.mohLogo, images.whoLogo, images.ictLogo];
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (!segments[segments.length - 1] || segments[segments.length - 1] === 'chat') {
+      const backAction = () => {
+        Alert.alert('Exit app?', 'Are you sure you want to exit app?', [
+          {
+            text: 'Cancel',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          { text: 'YES', onPress: () => BackHandler.exitApp() },
+        ]);
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction
+      );
+
+      return () => backHandler.remove();
+    }
+  }, [segments]);
   return (
     <SafeAreaView className="h-full bg-white">
       <Header showHeader={true} />
@@ -30,7 +56,7 @@ const Index = () => {
           <View className="w-full h-12 mt-8 items-center justify-center">
             <TouchableOpacity
               className="h-full w-[40%] bg-blue-600 rounded-lg items-center justify-center"
-              onPress={() => router.push("/logIn")}
+              onPress={() => router.push("/createAccount")}
             >
               <Text className="text-lg text-white font-psemibold">
                 Get Started
