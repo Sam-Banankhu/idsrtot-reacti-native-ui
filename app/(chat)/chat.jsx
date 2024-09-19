@@ -197,29 +197,6 @@ const Chat = () => {
               </View>
             </View>
           ))}
-          {/* {response?.question && (
-            <View className="w-full mb-8 mt-4">
-            <View className="w-full flex-row justify-end">
-              <View className='w-[90%]'>
-                <View className="w-full flex-row justify-end px-4">
-                  <MaterialCommunityIcons name="account-circle" size={30} />
-                </View>
-                <View className="justify-end flex-row px-4">
-                  <Markdown style={{ body: { fontSize: 20 } }}>
-                    {response?.question}
-                  </Markdown>
-                </View>
-              </View>
-            </View>
-            <View className="bg-gray-100 p-4 rounded-lg mt-2 w-[90%]">
-              <MaterialCommunityIcons name="robot-happy" size={30} />
-              <Text className="text-lg font-pregular">{response?.answer}</Text>
-              <View className="w-full justify-end flex-row text-sm font-pregular mt-2">
-                <Text>{response?.timestamp?.split("T")[1]?.split(".")[0]}</Text>
-              </View>
-            </View>
-          </View>
-          )} */}
         </ScrollView>
       </MaxWidthWrapper>
       <View className="absolute bottom-0 w-full px-2 bg-white">
