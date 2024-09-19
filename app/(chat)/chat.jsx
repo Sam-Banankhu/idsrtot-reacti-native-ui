@@ -14,7 +14,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Markdown from "react-native-markdown-display";
-// import Markdown from "markdown-to-jsx";
 
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import SelectTopics from "../../components/selectTopics";
@@ -23,8 +22,6 @@ import { baseUrl } from "../../constants/baseUrl";
 import TurtorialComponent from "../../components/tutorialComponent";
 import { useTopicContext } from "../../context/topicContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import images from "../../constants/images";
-import { fontScale } from "nativewind";
 
 const Chat = () => {
   const scrollViewRef = useRef(null);
@@ -32,7 +29,6 @@ const Chat = () => {
   const { currentTopic, setCurrentTopic } = useTopicContext();
 
   const [prompt, setPrompt] = useState("");
-  // const [selectedTopic, setSelectedTopic] = useState({});
   const [displayModal, setDisplayModal] = useState(false);
   const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState([]);
