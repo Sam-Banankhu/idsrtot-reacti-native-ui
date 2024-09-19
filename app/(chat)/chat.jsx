@@ -77,9 +77,7 @@ const Chat = () => {
         }
       )
       .then((res) => {
-        let data = res.data;
-        data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        setResponse(data);
+        setResponse(res.data);
       })
       .catch((error) => console.log(error))
       .finally(() => setIsPrompting(false));
