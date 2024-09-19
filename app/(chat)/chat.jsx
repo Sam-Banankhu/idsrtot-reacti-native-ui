@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import Markdown from "react-native-markdown-display";
 
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import SelectTopics from "../../components/selectTopics";
@@ -19,6 +21,7 @@ import axios from "axios";
 import { baseUrl } from "../../constants/baseUrl";
 import TurtorialComponent from "../../components/tutorialComponent";
 import { useTopicContext } from "../../context/topicContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Chat = () => {
   const scrollViewRef = useRef(null);
@@ -26,30 +29,100 @@ const Chat = () => {
   const { currentTopic, setCurrentTopic } = useTopicContext();
 
   const [prompt, setPrompt] = useState("");
-  // const [selectedTopic, setSelectedTopic] = useState({});
   const [displayModal, setDisplayModal] = useState(false);
   const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState([]);
-
-  const [formValues, setFormValues] = useState({
-    fullName: "Moth",
-    phone: "08878778",
-    role: "hsa",
-    district: "Zomba",
-    facility: "Zomba Central Hospital",
-  });
+  const [isprompting, setIsPrompting] = useState(false);
+  const [response, setResponse] = useState([]);
+  const [sampleQuestions, setSampleQuestions] = useState([]);
 
   useEffect(() => {
     const fetchSections = async () => {
       setIsLoading(true);
+      const token = await AsyncStorage.getItem("idsrtoken");
       axios
-        .get(`${baseUrl}/hsa/sections/`)
-        .then((res) => setSections(res.data))
+        .get(`${baseUrl}/sections/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          setSections(res.data);
+        })
         .catch((error) => console.log(error))
         .finally(() => setIsLoading(false));
     };
     fetchSections();
   }, []);
+
+  const promptQuery = async (prompt) => {
+    setIsPrompting(true);
+    setPrompt("");
+    const token = await AsyncStorage.getItem("idsrtoken");
+    await axios
+      .post(
+        `${baseUrl}/hsa/ask`,
+        {
+          section_id: currentTopic?.id,
+          question: prompt,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        setResponse(res.data);
+      })
+      .catch((error) => console.log(error))
+      .finally(() => setIsPrompting(false));
+  };
+
+  useEffect(() => {
+    const fetchRecentChat = async () => {
+      const token = await AsyncStorage.getItem("idsrtoken");
+      if (token && currentTopic?.id) {
+        await axios
+          .post(
+            `${baseUrl}/hsa/recent-chats`,
+            {
+              section_id: currentTopic?.id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then(async (res) => {
+            if (res.data?.recent_chats) {
+              setResponse(res.data);
+            } else {
+              await axios
+                .post(
+                  `${baseUrl}/hsa/sample-questions`,
+                  {
+                    section_id: currentTopic?.id,
+                  },
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                )
+                .then((res) => {
+                  console.log(res.data.sample_questions);
+                  setSampleQuestions(res.data?.sample_questions);
+                })
+                .catch((error) => console.log(error));
+            }
+          })
+          .catch((error) => console.log(error));
+      }
+    };
+    fetchRecentChat();
+  }, [currentTopic]);
 
   return (
     <SafeAreaView className="h-full bg-white relative">
@@ -75,32 +148,83 @@ const Chat = () => {
       </View>
       <MaxWidthWrapper>
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: 200 }}
           ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
           onContentSizeChange={() =>
-            scrollViewRef?.current?.scrollToEnd({ animated: false })
+            scrollViewRef?.current?.scrollToEnd({ animated: true })
           }
-        ></ScrollView>
+        >
+          {sampleQuestions && (
+            <View className="w-full">
+              {sampleQuestions?.map((item, index) => (
+                <TouchableOpacity
+                  className="w-full p-8 bg-gray-100 rounded-lg mt-4"
+                  key={index}
+                  onPress={async () => await promptQuery(item.question)}
+                >
+                  <Text className="text-lg font-pregular">
+                    {item?.question}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          {response?.recent_chats?.map((item, index) => (
+            <View className="w-full mb-8 mt-4" key={index}>
+              <View className="w-full flex-row justify-end">
+                <View className="w-[90%]">
+                  <View className="w-full flex-row justify-end px-4">
+                    <MaterialCommunityIcons name="account-circle" size={30} />
+                  </View>
+                  <View className="justify-end flex-row px-4">
+                    <Markdown style={{ body: { fontSize: 20 } }}>
+                      {item.question}
+                    </Markdown>
+                  </View>
+                </View>
+              </View>
+              <View className="bg-gray-100 p-4 rounded-lg mt-2 w-[90%]">
+                <MaterialCommunityIcons name="robot-happy" size={30} />
+                <Text className="text-lg font-pregular">{item.response}</Text>
+                <View className="w-full justify-end flex-row text-sm font-pregular mt-2">
+                  <Text>{item?.timestamp?.split("T")[1]?.split(".")[0]}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
       </MaxWidthWrapper>
-      <View className="absolute bottom-6 w-full px-2">
-        <View className="w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200">
+      <View className="absolute bottom-0 w-full px-2 bg-white">
+        <View className="w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200 bg-white">
           <TextInput
             className="w-[80%] p-2 max-h-24 text-lg font-pregular"
             multiline
             placeholder="Send a message"
             cursorColor="#3B82F6"
+            onFocus={() => {
+              scrollViewRef?.current?.scrollToEnd({ animated: false });
+            }}
             value={prompt}
             onChangeText={(text) => setPrompt(text)}
           />
-          <TouchableOpacity
-            className="w-[12%] h-10 rounded-lg items-center justify-center"
-            disabled={!prompt}
-            onPress={() => console.log(prompt)}
-          >
-            <MaterialCommunityIcons name="send" size={30} color={prompt ? "#3B82F6": "#93C5FD"} />
-          </TouchableOpacity>
+          {isprompting ? (
+            <ActivityIndicator size={"large"} color={"blue"} />
+          ) : (
+            <TouchableOpacity
+              className="w-[12%] h-10 rounded-lg items-center justify-center"
+              disabled={!prompt || isprompting}
+              onPress={async () => await promptQuery(prompt)}
+            >
+              <MaterialCommunityIcons
+                name="send"
+                size={30}
+                color={prompt ? "#3B82F6" : "#93C5FD"}
+              />
+            </TouchableOpacity>
+          )}
         </View>
-        <Text className="text-center text-gray-500 mt-4 text-base">
+        <Text className="text-center text-gray-500 mt-2 text-base mb-2">
           © 2024 IDSRTutor. All Rights Reserved
         </Text>
       </View>
