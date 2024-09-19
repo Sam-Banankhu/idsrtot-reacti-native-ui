@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import Markdown from "react-native-markdown-display";
+// import Markdown from "markdown-to-jsx";
 
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import SelectTopics from "../../components/selectTopics";
@@ -19,6 +22,9 @@ import axios from "axios";
 import { baseUrl } from "../../constants/baseUrl";
 import TurtorialComponent from "../../components/tutorialComponent";
 import { useTopicContext } from "../../context/topicContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import images from "../../constants/images";
+import { fontScale } from "nativewind";
 
 const Chat = () => {
   const scrollViewRef = useRef(null);
@@ -30,26 +36,91 @@ const Chat = () => {
   const [displayModal, setDisplayModal] = useState(false);
   const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState([]);
-
-  const [formValues, setFormValues] = useState({
-    fullName: "Moth",
-    phone: "08878778",
-    role: "hsa",
-    district: "Zomba",
-    facility: "Zomba Central Hospital",
-  });
+  const [isprompting, setIsPrompting] = useState(false);
+  const [response, setResponse] = useState([]);
+  const [sampleQuestions, setSampleQuestions] = useState([]);
 
   useEffect(() => {
     const fetchSections = async () => {
       setIsLoading(true);
+      const token = await AsyncStorage.getItem("idsrtoken");
       axios
-        .get(`${baseUrl}/hsa/sections/`)
-        .then((res) => setSections(res.data))
+        .get(`${baseUrl}/sections/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          setSections(res.data);
+        })
         .catch((error) => console.log(error))
         .finally(() => setIsLoading(false));
     };
     fetchSections();
   }, []);
+
+  const promptQuery = async (prompt) => {
+    setIsPrompting(true);
+    setPrompt("");
+    const token = await AsyncStorage.getItem("idsrtoken");
+    await axios
+      .post(
+        `${baseUrl}/hsa/ask`,
+        {
+          section_id: currentTopic?.id,
+          question: prompt,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => setResponse(res.data))
+      .catch((error) => console.log(error))
+      .finally(() => setIsPrompting(false));
+  };
+
+  useEffect(() => {
+    const fetchRecentChat = async () => {
+      const token = await AsyncStorage.getItem("idsrtoken");
+      await axios
+        .post(
+          `${baseUrl}/hsa/recent-chats`,
+          {
+            section_id: currentTopic?.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then(async (res) => {
+          console.log(res.data.recent_chats)
+          if (res.data?.length) {
+            setResponse(res.data);
+          } else {
+            await axios
+              .post(
+                `${baseUrl}/hsa/sample-questions`,
+                {
+                  section_id: currentTopic?.id,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              )
+              .then((res) => setSampleQuestions(res.data?.sample_questions))
+              .catch((error) => console.log(error));
+          }
+        })
+        .catch((error) => console.log(error));
+    };
+    fetchRecentChat();
+  }, [currentTopic]);
 
   return (
     <SafeAreaView className="h-full bg-white relative">
@@ -75,32 +146,98 @@ const Chat = () => {
       </View>
       <MaxWidthWrapper>
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: 200 }}
           ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
           onContentSizeChange={() =>
             scrollViewRef?.current?.scrollToEnd({ animated: false })
           }
-        ></ScrollView>
+        >
+          {
+            (sampleQuestions && !response?.recent_chats) && (
+              <View className='h-[85vh] w-full items-center justify-center'>
+                {
+                  sampleQuestions?.map && (
+                    <View className='w-full h-20                                                                                                                                                      border rounded-lg mt-4'>
+                      <Text>{sampleQuestions?.question}</Text>
+                    </View>
+                  )
+                }
+              </View>
+            )
+          }
+          {response?.recent_chats?.map((item, index) => (
+            <View className="w-ful mb-8 mt-4" key={index}>
+              <View className="rounded-lg">
+                <MaterialCommunityIcons name="account-circle" size={30} />
+                <Markdown style={{ body: { fontSize: 20 } }}>
+                  {item.question}
+                </Markdown>
+              </View>
+              <View className="bg-gray-100 p-4 rounded-lg mt-2">
+                {/* <Image
+                  source={images.logo}
+                  className="h-10 w-10"
+                  resizeMode="contain"
+                /> */}
+                <MaterialCommunityIcons name="robot-happy" size={30} />
+                <Text className="text-lg font-pregular">{item.response}</Text>
+              </View>
+            </View>
+          ))}
+          {response?.question && (
+            <View className="w-ful mb-8">
+              <View className="">
+                <MaterialCommunityIcons name="account-circle" size={30} />
+                <Markdown style={{ body: { fontSize: 20 } }}>
+                  {response?.question}
+                </Markdown>
+              </View>
+              <View className="bg-gray-100 p-4 rounded-lg mt-2">
+                {/* <Image
+                  source={images.logo}
+                  className="h-10 w-10"
+                  resizeMode="contain"
+                /> */}
+                <MaterialCommunityIcons name="robot-happy" size={30} />
+                <Text className="text-lg font-pregular">
+                  {response?.answer}
+                </Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
       </MaxWidthWrapper>
-      <View className="absolute bottom-6 w-full px-2">
-        <View className="w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200">
+      <View className="absolute bottom-0 w-full px-2 bg-white">
+        <View className="w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200 bg-white">
           <TextInput
             className="w-[80%] p-2 max-h-24 text-lg font-pregular"
             multiline
             placeholder="Send a message"
             cursorColor="#3B82F6"
+            onFocus={() => {
+              scrollViewRef?.current?.scrollToEnd({ animated: false });
+            }}
             value={prompt}
             onChangeText={(text) => setPrompt(text)}
           />
-          <TouchableOpacity
-            className="w-[12%] h-10 rounded-lg items-center justify-center"
-            disabled={!prompt}
-            onPress={() => console.log(prompt)}
-          >
-            <MaterialCommunityIcons name="send" size={30} color={prompt ? "#3B82F6": "#93C5FD"} />
-          </TouchableOpacity>
+          {isprompting ? (
+            <ActivityIndicator size={"large"} color={"blue"} />
+          ) : (
+            <TouchableOpacity
+              className="w-[12%] h-10 rounded-lg items-center justify-center"
+              disabled={!prompt}
+              onPress={async () => await promptQuery(prompt)}
+            >
+              <MaterialCommunityIcons
+                name="send"
+                size={30}
+                color={prompt ? "#3B82F6" : "#93C5FD"}
+              />
+            </TouchableOpacity>
+          )}
         </View>
-        <Text className="text-center text-gray-500 mt-4 text-base">
+        <Text className="text-center text-gray-500 mt-2 text-base mb-2">
           © 2024 IDSRTutor. All Rights Reserved
         </Text>
       </View>
