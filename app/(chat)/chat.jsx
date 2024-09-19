@@ -76,7 +76,11 @@ const Chat = () => {
           },
         }
       )
-      .then((res) => setResponse(res.data))
+      .then((res) => {
+        let data = res.data;
+        data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setResponse(data);
+      })
       .catch((error) => console.log(error))
       .finally(() => setIsPrompting(false));
   };
@@ -84,40 +88,44 @@ const Chat = () => {
   useEffect(() => {
     const fetchRecentChat = async () => {
       const token = await AsyncStorage.getItem("idsrtoken");
-      await axios
-        .post(
-          `${baseUrl}/hsa/recent-chats`,
-          {
-            section_id: currentTopic?.id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+      if (token && currentTopic?.id) {
+        await axios
+          .post(
+            `${baseUrl}/hsa/recent-chats`,
+            {
+              section_id: currentTopic?.id,
             },
-          }
-        )
-        .then(async (res) => {
-          console.log(res.data.recent_chats)
-          if (res.data?.length) {
-            setResponse(res.data);
-          } else {
-            await axios
-              .post(
-                `${baseUrl}/hsa/sample-questions`,
-                {
-                  section_id: currentTopic?.id,
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then(async (res) => {
+            if (res.data?.recent_chats) {
+              setResponse(res.data);
+            } else {
+              await axios
+                .post(
+                  `${baseUrl}/hsa/sample-questions`,
+                  {
+                    section_id: currentTopic?.id,
                   },
-                }
-              )
-              .then((res) => setSampleQuestions(res.data?.sample_questions))
-              .catch((error) => console.log(error));
-          }
-        })
-        .catch((error) => console.log(error));
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                )
+                .then((res) => {
+                  console.log(res.data.sample_questions);
+                  setSampleQuestions(res.data?.sample_questions);
+                })
+                .catch((error) => console.log(error));
+            }
+          })
+          .catch((error) => console.log(error));
+      }
     };
     fetchRecentChat();
   }, [currentTopic]);
@@ -150,62 +158,70 @@ const Chat = () => {
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() =>
-            scrollViewRef?.current?.scrollToEnd({ animated: false })
+            scrollViewRef?.current?.scrollToEnd({ animated: true })
           }
         >
-          {
-            (sampleQuestions && !response?.recent_chats) && (
-              <View className='h-[85vh] w-full items-center justify-center'>
-                {
-                  sampleQuestions?.map && (
-                    <View className='w-full h-20                                                                                                                                                      border rounded-lg mt-4'>
-                      <Text>{sampleQuestions?.question}</Text>
-                    </View>
-                  )
-                }
-              </View>
-            )
-          }
+          {sampleQuestions && (
+            <View className="w-full">
+              {sampleQuestions?.map((item, index) => (
+                <TouchableOpacity
+                  className="w-full p-8 bg-gray-100 rounded-lg mt-4"
+                  key={index}
+                  onPress={async () => await promptQuery(item.question)}
+                >
+                  <Text className="text-lg font-pregular">
+                    {item?.question}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           {response?.recent_chats?.map((item, index) => (
-            <View className="w-ful mb-8 mt-4" key={index}>
-              <View className="rounded-lg">
-                <MaterialCommunityIcons name="account-circle" size={30} />
-                <Markdown style={{ body: { fontSize: 20 } }}>
-                  {item.question}
-                </Markdown>
+            <View className="w-full mb-8 mt-4" key={index}>
+              <View className="w-full flex-row justify-end">
+                <View className="w-[90%]">
+                  <View className="w-full flex-row justify-end px-4">
+                    <MaterialCommunityIcons name="account-circle" size={30} />
+                  </View>
+                  <View className="justify-end flex-row px-4">
+                    <Markdown style={{ body: { fontSize: 20 } }}>
+                      {item.question}
+                    </Markdown>
+                  </View>
+                </View>
               </View>
-              <View className="bg-gray-100 p-4 rounded-lg mt-2">
-                {/* <Image
-                  source={images.logo}
-                  className="h-10 w-10"
-                  resizeMode="contain"
-                /> */}
+              <View className="bg-gray-100 p-4 rounded-lg mt-2 w-[90%]">
                 <MaterialCommunityIcons name="robot-happy" size={30} />
                 <Text className="text-lg font-pregular">{item.response}</Text>
+                <View className="w-full justify-end flex-row text-sm font-pregular mt-2">
+                  <Text>{item?.timestamp?.split("T")[1]?.split(".")[0]}</Text>
+                </View>
               </View>
             </View>
           ))}
-          {response?.question && (
-            <View className="w-ful mb-8">
-              <View className="">
-                <MaterialCommunityIcons name="account-circle" size={30} />
-                <Markdown style={{ body: { fontSize: 20 } }}>
-                  {response?.question}
-                </Markdown>
-              </View>
-              <View className="bg-gray-100 p-4 rounded-lg mt-2">
-                {/* <Image
-                  source={images.logo}
-                  className="h-10 w-10"
-                  resizeMode="contain"
-                /> */}
-                <MaterialCommunityIcons name="robot-happy" size={30} />
-                <Text className="text-lg font-pregular">
-                  {response?.answer}
-                </Text>
+          {/* {response?.question && (
+            <View className="w-full mb-8 mt-4">
+            <View className="w-full flex-row justify-end">
+              <View className='w-[90%]'>
+                <View className="w-full flex-row justify-end px-4">
+                  <MaterialCommunityIcons name="account-circle" size={30} />
+                </View>
+                <View className="justify-end flex-row px-4">
+                  <Markdown style={{ body: { fontSize: 20 } }}>
+                    {response?.question}
+                  </Markdown>
+                </View>
               </View>
             </View>
-          )}
+            <View className="bg-gray-100 p-4 rounded-lg mt-2 w-[90%]">
+              <MaterialCommunityIcons name="robot-happy" size={30} />
+              <Text className="text-lg font-pregular">{response?.answer}</Text>
+              <View className="w-full justify-end flex-row text-sm font-pregular mt-2">
+                <Text>{response?.timestamp?.split("T")[1]?.split(".")[0]}</Text>
+              </View>
+            </View>
+          </View>
+          )} */}
         </ScrollView>
       </MaxWidthWrapper>
       <View className="absolute bottom-0 w-full px-2 bg-white">
@@ -226,7 +242,7 @@ const Chat = () => {
           ) : (
             <TouchableOpacity
               className="w-[12%] h-10 rounded-lg items-center justify-center"
-              disabled={!prompt}
+              disabled={!prompt || isprompting}
               onPress={async () => await promptQuery(prompt)}
             >
               <MaterialCommunityIcons
