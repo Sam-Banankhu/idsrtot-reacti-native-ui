@@ -25,7 +25,7 @@ const Index = () => {
           </Text>
           <Text className="mt-8 text-center text-xl font-pregular">
             IDRStutor helps you improve your field work and knowledge
-            acquisation with the help on an AI tutor
+            acquisation with the help of an AI tutor
           </Text>
           <View className="w-full h-12 mt-8 items-center justify-center">
             <TouchableOpacity
