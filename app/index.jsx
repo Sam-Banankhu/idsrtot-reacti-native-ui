@@ -1,5 +1,16 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, BackHandler, Alert } from "react-native";
-import { Link, router, useRouter, useSegments  } from "expo-router";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  BackHandler,
+  Alert,
+  Modal,
+  ImageBackground,
+  ActivityIndicator,
+} from "react-native";
+import { Link, Redirect, router, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -7,34 +18,65 @@ import { StatusBar } from "expo-status-bar";
 import MaxWidthWrapper from "../components/maxWidthWrapper";
 import Header from "../components/header";
 import images from "../constants/images";
+import { useLoggedInCheck } from "../context/useLoggedInCheck";
 
 const Index = () => {
   const logos = [images.mohLogo, images.whoLogo, images.ictLogo];
   const router = useRouter();
   const segments = useSegments();
 
+  const { isLoggedIn, isLoading } = useLoggedInCheck();
+
   useEffect(() => {
-    if (!segments[segments.length - 1] || segments[segments.length - 1] === 'chat') {
+    if (
+      !segments[segments.length - 1] ||
+      segments[segments.length - 1] === "chat"
+    ) {
       const backAction = () => {
-        Alert.alert('Exit app?', 'Are you sure you want to exit app?', [
+        Alert.alert("Exit app?", "Are you sure you want to exit app?", [
           {
-            text: 'Cancel',
+            text: "Cancel",
             onPress: () => null,
-            style: 'cancel',
+            style: "cancel",
           },
-          { text: 'YES', onPress: () => BackHandler.exitApp() },
+          { text: "YES", onPress: () => BackHandler.exitApp() },
         ]);
         return true;
       };
 
       const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
+        "hardwareBackPress",
         backAction
       );
 
       return () => backHandler.remove();
     }
   }, [segments]);
+
+  if (!isLoading && isLoggedIn) {
+    return <Redirect href="/chat" />;
+  }
+
+  if (isLoading) {
+    return (
+      <Modal animationType="fade" visible={isLoading} transparent>
+        <ImageBackground
+          source={images?.splash}
+          className="h-full w-full"
+          resizeMode="cover"
+        >
+          <View
+            className="flex-1 items-center justify-center"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <ActivityIndicator color={"#0B7423"} size="large" />
+          </View>
+        </ImageBackground>
+        <StatusBar backgroundColor="white" style="dark" />
+      </Modal>
+    );
+  }
+
   return (
     <SafeAreaView className="h-full bg-white">
       <Header showHeader={true} />
@@ -43,27 +85,17 @@ const Index = () => {
           contentContainerStyle={{ paddingBottom: 120 }}
           showsVerticalScrollIndicator={false}
         >
-          <Text className="text-center text-6xl font-bold mt-10">
-            <Text className="text-blue-600" numberOfLines={1}>
-              IDSRTUTOR
-            </Text>{" "}
+          <Text className="text-center text-6xl font-bold mt-10 text-blue-600">
+            IDSRTUTOR
+          </Text>
+          <Text className="text-center text-base text-gray-500 font-pregular">
             An AI Powered HSA Tutor
           </Text>
-          <Text className="mt-8 text-center text-xl font-pregular">
+          {/* <Text className="mt-8 text-center text-xl font-pregular">
             IDRStutor helps you improve your field work and knowledge
             acquisation with the help on an AI tutor
-          </Text>
-          <View className="w-full h-12 mt-8 items-center justify-center">
-            <TouchableOpacity
-              className="h-full w-[40%] bg-blue-600 rounded-lg items-center justify-center"
-              onPress={() => router.push("/createAccount")}
-            >
-              <Text className="text-lg text-white font-psemibold">
-                Get Started
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View className="w-full h-80 items-center justify-center">
+          </Text> */}
+          <View className="w-full h-80 items-center justify-center mt-10">
             <View className="w-[90%] mt-6 rounded-lg" style={{ elevation: 2 }}>
               <Image
                 source={images.chatBg}
@@ -72,9 +104,19 @@ const Index = () => {
               />
             </View>
           </View>
+          <View className="w-full h-12 mt-8 items-center justify-end flex-row px-4">
+            <TouchableOpacity
+              className="h-full w-[100%] bg-blue-600 rounded-lg items-center justify-center"
+              onPress={() => router.push("/createAccount")}
+            >
+              <Text className="text-lg text-white font-psemibold">
+                Get Started
+              </Text>
+            </TouchableOpacity>
+          </View>
           <View className="px-8">
-            <Text className="text-5xl font-bold mt-24">
-              Start your first conversation in seconds
+            <Text className="text-4xl font-bold mt-12">
+              Start a conversation in seconds
             </Text>
             <Text className="text-2xl mt-4 font-pregular">
               Referencing the Technical Guidellines has never been easier than
@@ -84,40 +126,15 @@ const Index = () => {
               </Link>
             </Text>
           </View>
-          <View className="mt-10 border-l-4 border-l-gray-400 w-full h-16 px-4 py-2 justify-between">
-            <Text className="text-sm text-blue-600">Step 1</Text>
-            <Text className="text-2xl font-psemibold" numberOfLines={1}>
-              Sign up for a{" "}
-              <Link href={"/createAccount"} className="text-blue-600">
-                New Account
-              </Link>
-            </Text>
-          </View>
-          <View className="mt-5 border-l-4 border-l-gray-400 w-full h-16 px-4 py-2 justify-between">
-            <Text className="text-sm text-blue-600">Step 2</Text>
-            <Text className="text-2xl font-psemibold" numberOfLines={1}>
-              Choose a <Text className="text-blue-600">Module</Text> &{" "}
-              <Text className="text-blue-600">Topic</Text>
-            </Text>
-          </View>
-          <View className="mt-5 border-l-4 border-l-gray-400 w-full h-16 px-4 py-2 justify-between">
-            <Text className="text-sm text-blue-600">Step 3</Text>
-            <Text className="text-2xl font-psemibold" numberOfLines={1}>
-              Start Your Conversation
-            </Text>
-          </View>
           <View className="px-8 mt-24 w-full">
-            <Text className="text-5xl font-bold">
+            <Text className="text-4xl font-bold">
               Practice in Real Life Scenarios
             </Text>
             <Text className="text-xl font-pregular mt-4">
               Get help if you make a mistake and need guidance from technical
               guidelines.
             </Text>
-            <Text className="text-center text-xl mt-4 font-pregular">
-              And many more...
-            </Text>
-            <Text className="text-5xl mt-24 font-bold">Partners</Text>
+            <Text className="text-4xl mt-24 font-bold">Partners</Text>
             <Text className="mt-4 text-xl font-pregular">
               The IDSTutor has been developed with partenership from the
               following
@@ -138,7 +155,6 @@ const Index = () => {
             ))}
           </View>
           <View className="w-full mt-28">
-            <Text className="text-4xl font-bold">IDSRTutor</Text>
             <View className="h-1 w-full border-b mt-2 border-b-gray-300" />
             <Text className="text-base text-gray-500 font-pregular mt-2 text-center">
               © 2024 IDSRTutor. All rights Reserved.
