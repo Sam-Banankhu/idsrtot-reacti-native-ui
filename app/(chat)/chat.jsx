@@ -26,31 +26,35 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Chat = () => {
   const scrollViewRef = useRef(null);
 
-  const { currentTopic, setCurrentTopic } = useTopicContext();
-
+  const { currentTopic, setCurrentTopic, setSections, sections } =
+    useTopicContext();
   const [prompt, setPrompt] = useState("");
-  const [displayModal, setDisplayModal] = useState(false);
-  const [sections, setSections] = useState([]);
+  const [displayModal, setDisplayModal] = useState(
+    !currentTopic?.name && !isLoading
+  );
   const [isLoading, setIsLoading] = useState([]);
   const [isprompting, setIsPrompting] = useState(false);
   const [response, setResponse] = useState([]);
   const [sampleQuestions, setSampleQuestions] = useState([]);
+  const [focused, setFocued] = useState(false);
 
   useEffect(() => {
     const fetchSections = async () => {
-      setIsLoading(true);
-      const token = await AsyncStorage.getItem("idsrtoken");
-      axios
-        .get(`${baseUrl}/sections/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          setSections(res.data);
-        })
-        .catch((error) => console.log(error))
-        .finally(() => setIsLoading(false));
+      if (!sections?.length) {
+        setIsLoading(true);
+        const token = await AsyncStorage.getItem("idsrtoken");
+        await axios
+          .get(`${baseUrl}/sections/`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((res) => {
+            setSections(res.data);
+          })
+          .catch((error) => console.log(error))
+          .finally(() => setIsLoading(false));
+      }
     };
     fetchSections();
   }, []);
@@ -196,13 +200,19 @@ const Chat = () => {
         </ScrollView>
       </MaxWidthWrapper>
       <View className="absolute bottom-0 w-full px-2 bg-white">
-        <View className="w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200 bg-white">
+        <View
+          className={`w-full flex-row p-2 justify-around items-center rounded-lg border-2 border-gray-200 bg-white ${
+            focused && "mb-8"
+          }`}
+        >
           <TextInput
             className="w-[80%] p-2 max-h-24 text-lg font-pregular"
             multiline
             placeholder="Send a message"
             cursorColor="#3B82F6"
+            onBlur={() => setFocued(false)}
             onFocus={() => {
+              setFocued(true);
               scrollViewRef?.current?.scrollToEnd({ animated: false });
             }}
             value={prompt}
@@ -212,7 +222,7 @@ const Chat = () => {
             <ActivityIndicator size={"large"} color={"blue"} />
           ) : (
             <TouchableOpacity
-              className="w-[12%] h-10 rounded-lg items-center justify-center"
+              className={`w-[12%] h-10 rounded-lg items-center justify-center`}
               disabled={!prompt || isprompting}
               onPress={async () => await promptQuery(prompt)}
             >
@@ -224,9 +234,11 @@ const Chat = () => {
             </TouchableOpacity>
           )}
         </View>
-        <Text className="text-center text-gray-500 mt-2 text-base mb-2">
-          © 2024 IDSRTutor. All Rights Reserved
-        </Text>
+        {!focused && (
+          <Text className="text-center text-gray-500 mt-2 text-base mb-2">
+            © 2024 IDSRTutor. All Rights Reserved
+          </Text>
+        )}
       </View>
       <StatusBar backgroundColor="white" style="dark" />
       {displayModal && (
@@ -238,14 +250,14 @@ const Chat = () => {
           handleSelectTopic={(item) => setCurrentTopic(item)}
         />
       )}
-      {!currentTopic?.name && !isLoading && (
+      {/* {!currentTopic?.name && !isLoading && (
         <TurtorialComponent
           displayTurtorial={!currentTopic?.name}
           handlePress={() => {
             setDisplayModal(true);
           }}
         />
-      )}
+      )} */}
 
       {isLoading && (
         <Modal animationType="fade" visible={isLoading} transparent>

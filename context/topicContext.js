@@ -7,13 +7,16 @@ export const useTopicContext = () => {
 };
 
 export default TopicContextProvider = ({ children }) => {
-  const [currentTopic, setCurrentTopic] = useState({});
+  const [currentTopic, setCurrentTopic, ] = useState({});
+  const [sections, setSections] = useState([]);
 
   return (
     <TopicContext.Provider
       value={{
         currentTopic,
         setCurrentTopic,
+        sections,
+        setSections
       }}
     >
       {children}
