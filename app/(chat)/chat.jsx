@@ -52,7 +52,9 @@ const Chat = () => {
           .then((res) => {
             setSections(res.data);
           })
-          .catch((error) => console.log(error))
+          .catch((error) => {
+            Alert.alert("Something went wrong", "please try again");
+          })
           .finally(() => setIsLoading(false));
       }
     };
@@ -79,7 +81,9 @@ const Chat = () => {
       .then((res) => {
         setResponse(res.data);
       })
-      .catch((error) => console.log(error))
+      .catch((error) => {
+        Alert.alert("Something went wrong", "please try again");
+      })
       .finally(() => setIsPrompting(false));
   };
 
@@ -116,13 +120,16 @@ const Chat = () => {
                   }
                 )
                 .then((res) => {
-                  console.log(res.data.sample_questions);
                   setSampleQuestions(res.data?.sample_questions);
                 })
-                .catch((error) => console.log(error));
+                .catch((error) => {
+                  Alert.alert("Something went wrong", "please try again");
+                });
             }
           })
-          .catch((error) => console.log(error));
+          .catch((error) => {
+            Alert.alert("Something went wrong", "please try again");
+          });
       }
     };
     fetchRecentChat();
@@ -250,14 +257,6 @@ const Chat = () => {
           handleSelectTopic={(item) => setCurrentTopic(item)}
         />
       )}
-      {/* {!currentTopic?.name && !isLoading && (
-        <TurtorialComponent
-          displayTurtorial={!currentTopic?.name}
-          handlePress={() => {
-            setDisplayModal(true);
-          }}
-        />
-      )} */}
 
       {isLoading && (
         <Modal animationType="fade" visible={isLoading} transparent>

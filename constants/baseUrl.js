@@ -1,2 +1,1 @@
-// export const baseUrl = 'http://192.168.43.89:8000/api/v1'
-export const baseUrl = "http://192.168.1.173:8000/api/v1";
+export const baseUrl = "https://0c90-102-70-8-181.ngrok-free.app/api/v1";

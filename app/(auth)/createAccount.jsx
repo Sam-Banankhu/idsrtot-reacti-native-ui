@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, Alert, Modal, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Alert,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -50,7 +57,7 @@ const CreateAccount = () => {
     }
   };
 
-  const fetchFacilities = async (districtId) => {
+  const fetchFacilities = async () => {
     try {
       await axios
         .post(`${baseUrl}/location/facilities/by_district`, {
@@ -63,7 +70,7 @@ const CreateAccount = () => {
         })
         .catch((error) => setFacilitiesData([]));
     } catch (error) {
-      console.error("Error fetching facilities:", error);
+      Alert.alert("Error fetching facilities", "Please try again!!");
     }
   };
 
@@ -104,7 +111,7 @@ const CreateAccount = () => {
               setSuccessMessage("Signup successful! Redirecting to login...");
               setTimeout(() => {
                 router.replace("/chat");
-              }, 2000);
+              }, 1000);
             }
           })
           .catch((error) => {

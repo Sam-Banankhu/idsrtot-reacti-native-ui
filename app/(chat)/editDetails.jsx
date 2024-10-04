@@ -67,7 +67,9 @@ const EditDetails = () => {
           router.push("/viewDetails");
         })
         .finally(() => setIsLoading(false))
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          Alert.alert("Something went wrong", "please try again");
+        });
     }
   };
 
@@ -102,7 +104,9 @@ const EditDetails = () => {
           router.push("/viewDetails");
         })
         .finally(() => setIsLoading(false))
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          Alert.alert("Something went wrong", "please try again");
+        });
     }
   };
 

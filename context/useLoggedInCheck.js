@@ -15,6 +15,7 @@ export const useLoggedInCheck = () => {
 export default GlobalContextProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
 
   const { setSections } = useTopicContext();
 
@@ -35,7 +36,15 @@ export default GlobalContextProvider = ({ children }) => {
               setIsLoggedIn(true);
               setIsLoading(false);
             })
-            .catch((error) => console.log(error))
+            .catch((error) => {
+              if (error.message === "Network Error") {
+                setNetworkError(true);
+                setIsLoggedIn(false);
+                setIsLoading(false);
+              } else {
+                Alert.alert("Somehing went wrong!!", "Please try again");
+              }
+            })
             .finally(() => setIsLoading(false));
         } else {
           setIsLoggedIn(false);
@@ -55,6 +64,7 @@ export default GlobalContextProvider = ({ children }) => {
         isLoading,
         isLoggedIn,
         setIsLoggedIn,
+        networkError
       }}
     >
       {children}

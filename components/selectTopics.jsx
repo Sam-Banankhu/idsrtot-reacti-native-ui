@@ -20,14 +20,12 @@ const SelectTopics = ({
   return (
     <Modal
       animationType="fade"
-      onRequestClose={handleClose}
       visible={displayModal}
       transparent
     >
       <TouchableOpacity
         className="flex-1 items-center justify-center"
         style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-        onPress={handleClose}
       >
         <View
           className="w-[90%] bg-white p-4 rounded-3xl"

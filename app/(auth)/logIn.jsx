@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, Alert, Modal, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Alert,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import { useState } from "react";
 import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -50,7 +57,7 @@ const LogIn = () => {
               // Redirect based on user role
               setTimeout(() => {
                 router.replace("/chat"); // Customize your HSA dashboard route
-              }, 2000); // Redirect after 2 seconds
+              }, 1000); // Redirect after 2 seconds
             }
           })
           .catch((error) => {
@@ -73,13 +80,13 @@ const LogIn = () => {
             } else {
               setErrorMessage("An unexpected error occurred.");
             }
-          }).finally(() => setIsLogging(false))
+          })
+          .finally(() => setIsLogging(false));
       }
     } catch (error) {
-      console.log(error);
       Alert.alert("Something went wrong", "please try again");
     } finally {
-      setIsLogging(false)
+      setIsLogging(false);
     }
   };
 
