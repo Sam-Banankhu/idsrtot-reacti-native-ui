@@ -6,25 +6,21 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Modal,
-  ActivityIndicator,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import images from "../../constants/images";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import FormField from "../../components/formField";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { baseUrl } from "../../constants/baseUrl";
+import LoadingAnimation from "../../components/loadingAnimation";
 
 const ViewDetails = () => {
-  const { height } = Dimensions.get("window");
-
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -37,7 +33,18 @@ const ViewDetails = () => {
             Authorization: `Bearer ${token}`,
           },
         })
-        .then((res) => setUserData(res.data))
+        .then((res) => 
+          setUserData([
+            { title: "Full Name", value: res?.data?.fullname },
+            { title: "E-mail", value: res?.data?.email },
+            { title: "Role", value: res?.data?.role },
+            { title: "Facility", value: res?.data?.facility_name },
+            { title: "Facility Type", value: res?.data?.facility_type },
+            { title: "Distric", value: res?.data?.district_name },
+            { title: "Managing Authority", value: res?.data?.managing_authority },
+            { title: "Geographical Setting", value: res?.data?.urban_rural }
+          ])
+        )
         .catch(() => Alert.alert("Something went wrong", "Please try again"))
         .finally(() => setIsLoading(false));
     };
@@ -46,7 +53,7 @@ const ViewDetails = () => {
 
   const logout = async () => {
     await AsyncStorage.removeItem("idsrtoken");
-    router.replace("/");
+    router.replace("/logIn");
   };
 
   return (
@@ -82,68 +89,25 @@ const ViewDetails = () => {
             showsVerticalScrollIndicator={false}
             className="w-full p-2"
           >
-            <View className="relative items-center justify-center mt-10">
+            <View className="relative items-center justify-center mt-2">
               <Image
                 source={images.profile}
                 resizeMode="cover"
                 className="w-36 h-36 rounded-full"
               />
             </View>
-            <View className="w-full p-2">
-              <FormField
-                title="Full Name"
-                editable={false}
-                placeholder="enter your name..."
-                value={userData?.fullname}
-              />
-              <FormField
-                title="Phone"
-                placeholder="enter phone number..."
-                editable={false}
-                value={userData?.phone}
-              />
-              <FormField
-                title="E-mail"
-                placeholder="enter email..."
-                editable={false}
-                value={userData?.email}
-              />
-              <FormField
-                title="Role"
-                placeholder="role..."
-                value={userData?.role}
-                editable={false}
-              />
-              <FormField
-                title="Facility"
-                placeholder="facility..."
-                editable={false}
-                value={userData?.facility_name}
-              />
-              <FormField
-                title="Facility Type"
-                placeholder="facility..."
-                editable={false}
-                value={userData?.facility_type}
-              />
-              <FormField
-                title="Managing Authority"
-                placeholder="managing authority..."
-                editable={false}
-                value={userData?.managing_authority}
-              />
-              <FormField
-                title="District"
-                placeholder="district..."
-                editable={false}
-                value={userData?.district_name}
-              />
-              <FormField
-                title="Geographical Setting"
-                placeholder="geographical setting..."
-                editable={false}
-                value={userData?.urban_rural}
-              />
+            <View className="w-full mt-10">
+              {userData?.map((item, index) => (
+                <View
+                  className="border border-blue-600 rounded-lg  border-b-4 border-r-4 p-2 w-full mt-2"
+                  key={index?.toString()}
+                >
+                  <Text className="text-base text-blue-600 font-pregular">
+                    {item?.title}:
+                  </Text>
+                  <Text className="text-xl font-psemibold">{item?.value}</Text>
+                </View>
+              ))}
               <CustomWideButton
                 title="Log Out"
                 styles="mt-8"
@@ -153,19 +117,7 @@ const ViewDetails = () => {
           </ScrollView>
         </MaxWidthWrapper>
       </View>
-      {isLoading && (
-        <Modal animationType="fade" visible={isLoading} transparent>
-          <View
-            className="flex-1 items-center justify-center"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-          >
-            <Text className="text-blue-600 text-lg tex-center font-psemibold">
-              Loading...
-            </Text>
-            <ActivityIndicator color={"#3B82F6"} size="large" />
-          </View>
-        </Modal>
-      )}
+      {isLoading && <LoadingAnimation isLoading={isLoading} />}
       <StatusBar style="dark" backgroundColor="white" />
     </SafeAreaView>
   );

@@ -140,7 +140,7 @@ const Index = () => {
           <View className="w-full h-12 mt-8 items-center justify-end flex-row px-4">
             <TouchableOpacity
               className="h-full w-[100%] bg-blue-600 rounded-lg items-center justify-center"
-              onPress={() => router.push("/createAccount")}
+              onPress={() => router.push("/verifyAccount")}
             >
               <Text className="text-lg text-white font-psemibold">
                 Get Started

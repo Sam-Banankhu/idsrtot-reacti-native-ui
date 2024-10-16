@@ -7,6 +7,7 @@ import {
   Modal,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -19,9 +20,10 @@ import MaxWidthWrapper from "../../components/maxWidthWrapper";
 import SelectTopics from "../../components/selectTopics";
 import axios from "axios";
 import { baseUrl } from "../../constants/baseUrl";
-import TurtorialComponent from "../../components/tutorialComponent";
 import { useTopicContext } from "../../context/topicContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import images from "../../constants/images";
+import LoadingAnimation from "../../components/loadingAnimation";
 
 const Chat = () => {
   const scrollViewRef = useRef(null);
@@ -79,6 +81,7 @@ const Chat = () => {
         }
       )
       .then((res) => {
+        console.log(res.data);
         setResponse(res.data);
       })
       .catch((error) => {
@@ -196,10 +199,27 @@ const Chat = () => {
                 </View>
               </View>
               <View className="bg-gray-100 p-4 rounded-lg mt-2 w-[90%]">
-                <MaterialCommunityIcons name="robot-happy" size={30} />
+                <View className="h-10 w-10 bg-gray-200 rounded-full">
+                  <Image
+                    source={images.logo}
+                    className="h-full w-full"
+                    resizeMode="contain"
+                  />
+                </View>
+                {/* <MaterialCommunityIcons name="robot-happy" size={30} /> */}
                 <Text className="text-lg font-pregular">{item.response}</Text>
                 <View className="w-full justify-end flex-row text-sm font-pregular mt-2">
-                  <Text>{item?.timestamp?.split("T")[1]?.split(".")[0]}</Text>
+                  <View>
+                    <Text className='text-sm text-right font-pregular'>
+                      {new Date(item?.timestamp?.split("T")[0]).toDateString()}
+                    </Text>
+                    <Text className='text-sm text-right font-pregular'>
+                      {item?.timestamp
+                        ?.split("T")[1]
+                        ?.split(".")[0]
+                        .slice(0, 5)}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -259,17 +279,7 @@ const Chat = () => {
       )}
 
       {isLoading && (
-        <Modal animationType="fade" visible={isLoading} transparent>
-          <View
-            className="flex-1 items-center justify-center"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-          >
-            <Text className="text-blue-600 text-lg tex-center font-psemibold">
-              Loading...
-            </Text>
-            <ActivityIndicator color={"#3B82F6"} size="large" />
-          </View>
-        </Modal>
+        <LoadingAnimation isLoading={isLoading}/>
       )}
     </SafeAreaView>
   );
