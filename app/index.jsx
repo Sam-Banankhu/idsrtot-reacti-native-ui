@@ -19,13 +19,15 @@ import MaxWidthWrapper from "../components/maxWidthWrapper";
 import Header from "../components/header";
 import images from "../constants/images";
 import { useLoggedInCheck } from "../context/useLoggedInCheck";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import CustomWideButton from "../components/customWideButton";
 
 const Index = () => {
   const logos = [images.mohLogo, images.whoLogo, images.ictLogo];
   const router = useRouter();
   const segments = useSegments();
 
-  const { isLoggedIn, isLoading } = useLoggedInCheck();
+  const { isLoggedIn, isLoading, networkError } = useLoggedInCheck();
 
   useEffect(() => {
     if (
@@ -77,6 +79,41 @@ const Index = () => {
     );
   }
 
+  if (networkError) {
+    return (
+      <Modal animationType="fade" visible={networkError} transparent>
+        <ImageBackground
+          source={images?.splash}
+          className="h-full w-full"
+          resizeMode="cover"
+        >
+          <View
+            className="flex-1 items-center justify-center px-8"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <View className="w-[80%] p-4 bg-gray-300 rounded-lg items-center justify-center">
+              <Text className="text-lg font-psemibold">Network Error!!</Text>
+              <MaterialCommunityIcons
+                name="network-strength-3-alert"
+                size={50}
+                color={"red"}
+              />
+              <Text className="text-base font-pregular">
+                Plesae switch to a stable network!!
+              </Text>
+              <CustomWideButton
+                styles={"mt-4"}
+                title={"Exit"}
+                handlePress={() => BackHandler.exitApp()}
+              />
+            </View>
+          </View>
+        </ImageBackground>
+        <StatusBar style="dark" backgroundColor="white" />
+      </Modal>
+    );
+  }
+
   return (
     <SafeAreaView className="h-full bg-white">
       <Header showHeader={true} />
@@ -91,10 +128,6 @@ const Index = () => {
           <Text className="text-center text-base text-gray-500 font-pregular">
             An AI Powered HSA Tutor
           </Text>
-          {/* <Text className="mt-8 text-center text-xl font-pregular">
-            IDRStutor helps you improve your field work and knowledge
-            acquisation with the help on an AI tutor
-          </Text> */}
           <View className="w-full h-80 items-center justify-center mt-10">
             <View className="w-[90%] mt-6 rounded-lg" style={{ elevation: 2 }}>
               <Image
@@ -107,7 +140,7 @@ const Index = () => {
           <View className="w-full h-12 mt-8 items-center justify-end flex-row px-4">
             <TouchableOpacity
               className="h-full w-[100%] bg-blue-600 rounded-lg items-center justify-center"
-              onPress={() => router.push("/createAccount")}
+              onPress={() => router.push("/verifyAccount")}
             >
               <Text className="text-lg text-white font-psemibold">
                 Get Started

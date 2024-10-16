@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "idsrtutor",
+    "name": "Idsr Tutor",
     "slug": "idsrtutor",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.moth"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +32,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9de2bdc6-10d2-4d8f-964e-54bfcfb9fe5f"
+      }
     }
   }
 }

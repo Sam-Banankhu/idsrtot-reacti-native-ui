@@ -27,11 +27,10 @@ export default RootLayout = () => {
   return (
     <TopicContextProvider>
       <GlobalContextProvider>
-        <Stack>
+        <Stack initialRouteName="index">
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(chat)" options={{ headerShown: false }} />
-          <Stack.Screen name="(userDetails)" options={{ headerShown: false }} />
         </Stack>
       </GlobalContextProvider>
     </TopicContextProvider>
