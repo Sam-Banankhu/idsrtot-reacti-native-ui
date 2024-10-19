@@ -2,17 +2,14 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
-  ActivityIndicator,
   ScrollView,
 } from "react-native";
 import React, { useState } from "react";
-import Header from "../../components/header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MaxWidthWrapper from "../../components/maxWidthWrapper";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import FormField from "../../components/formField";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import CustomWideButton from "../../components/customWideButton";
 import axios from "axios";
 import { baseUrl } from "../../constants/baseUrl";
@@ -20,7 +17,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingAnimation from "../../components/loadingAnimation";
 
 const EditDetails = () => {
-  // const { name, phone, email } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [formFieldErrorMessage, setFormFieldErrorMessage] = useState({});
