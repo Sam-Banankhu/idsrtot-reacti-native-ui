@@ -26,12 +26,6 @@ const EditDetails = () => {
   const [formFieldErrorMessage, setFormFieldErrorMessage] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
-  // const [formValues, setFormValues] = useState({
-  //   fullName: name ? name : "",
-  //   phoneNumber: phone ? phone : "",
-  //   email: email ? email : "",
-  // });
-
   const [passwordValues, setPasswordValues] = useState({
     oldPassword: "",
     newPassword: "",
@@ -50,52 +44,12 @@ const EditDetails = () => {
     comfirmPassword: "Comfirm Password",
   };
 
-  // const [changePasswordVisible, setChangePasswordVisible] = useState(false);
-
-  // const updateUserData = async () => {
-  //   setIsLoading(true);
-  //   let sufficientInfo = true;
-  //   for (const key in formValues) {
-  //     if (!formValues[key]) {
-  //       setErrorMessage(`${key} can not be empty`);
-  //       sufficientInfo = false;
-  //       setIsLoading(false);
-  //       break;
-  //     }
-  //   }
-  //   if (sufficientInfo) {
-  //     const token = await AsyncStorage.getItem("idsrtoken");
-  //     await axios
-  //       .put(
-  //         `${baseUrl}/user/me/update`,
-  //         {
-  //           fullname: formValues?.fullName,
-  //           email: formValues?.email,
-  //           phone: formValues?.phoneNumber,
-  //         },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       )
-  //       .then((res) => {
-  //         router.push("/viewDetails");
-  //       })
-  //       .finally(() => setIsLoading(false))
-  //       .catch((error) => {
-  //         Alert.alert("Something went wrong", "please try again");
-  //       });
-  //   }
-  // };
-
   const updatePassword = async () => {
     setIsLoading(true);
     try {
       let sufficientInfo = true;
       for (const key in passwordValues) {
         if (!passwordValues[key]) {
-          // setErrorMessage(`${key} can not be empty`);
           setFormFieldErrorMessage({
             title: key,
             message: `${placeHolderText[key]} can not be empty`,
@@ -172,60 +126,6 @@ const EditDetails = () => {
           showsVerticalScrollIndicator={false}
         >
           <View className="p-2">
-            {/* <FormField
-              title="Full Name"
-              editable={true}
-              placeholder="enter your name..."
-              value={formValues?.fullName}
-              handleOnChangeText={(text) =>
-                setFormValues({ ...formValues, fullName: text })
-              }
-            /> */}
-            {/* <FormField
-              title="Phone"
-              placeholder="enter phone number..."
-              editable={true}
-              handleOnChangeText={(text) =>
-                setFormValues({ ...formValues, phone: text })
-              }
-              value={formValues?.phoneNumber}
-            /> */}
-            {/* <FormField
-              title="E-Mail"
-              placeholder="enter email..."
-              editable={true}
-              handleOnChangeText={(text) =>
-                setFormValues({ ...formValues, email: text })
-              }
-              value={formValues?.email}
-            /> */}
-            {/* <CustomWideButton
-              title="Save Changes"
-              styles="mt-10"
-              handlePress={updateUserData}
-              inactive={
-                !(
-                  formValues.email &&
-                  formValues.fullName &&
-                  formValues.phoneNumber
-                )
-              }
-            /> */}
-            {/* <TouchableOpacity
-              className="mt-10 w-full h-10 bg-blue-500  rounded-xl items-center justify-between px-4 flex-row"
-              onPress={() => setChangePasswordVisible(!changePasswordVisible)}
-            >
-              <Text className="text-base font-psemibold text-white">
-                Change Password
-              </Text>
-              <AntDesign
-                name={changePasswordVisible ? "caretup" : "caretdown"}
-                size={20}
-                color="white"
-              />
-            </TouchableOpacity> */}
-            {/* {changePasswordVisible && (
-              <> */}
             <FormField
               title="Old Password"
               placeholder="password"
@@ -300,8 +200,6 @@ const EditDetails = () => {
                 !(passwordValues.newPassword && passwordValues.oldPassword)
               }
             />
-            {/* </>
-            )} */}
           </View>
         </ScrollView>
       </MaxWidthWrapper>
