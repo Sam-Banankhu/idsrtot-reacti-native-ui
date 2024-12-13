@@ -206,7 +206,6 @@ const Chat = () => {
                     resizeMode="contain"
                   />
                 </View>
-                {/* <MaterialCommunityIcons name="robot-happy" size={30} /> */}
                 <Text className="text-lg font-pregular">{item.response}</Text>
                 <View className="w-full justify-end flex-row text-sm font-pregular mt-2">
                   <View>
